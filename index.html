@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kalkulator Persalinan & Neonatus — bidanpintar.id</title>
+<style>
+:root{
+  --deep:#073f3a; --teal:#0d6e66; --teal2:#0a5650; --rose:#c2557a; --rosel:#f6e7ed;
+  --band:#eef5f4; --ink:#1f2a37; --grey:#6b7280; --bord:#d4dedc; --zeb:#f7faf9;
+  --ok:#1e9e6a; --warn:#d98e26; --bad:#c2557a;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;color:var(--ink);background:#eef3f2}
+.wrap{max-width:920px;margin:0 auto;padding:0 14px 60px}
+header{background:linear-gradient(135deg,var(--deep),var(--teal));color:#fff;padding:26px 0 22px;margin-bottom:18px}
+header .wrap{padding-bottom:0}
+.brand{font-weight:800;font-size:15px;letter-spacing:.3px}.brand b{color:#f3b9cb}
+h1{margin:8px 0 4px;font-size:25px;font-weight:800;letter-spacing:-.3px}
+.sub{color:#d7efec;font-size:14px;max-width:660px}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+nav button{border:1.5px solid var(--bord);background:#fff;color:var(--ink);padding:9px 14px;border-radius:22px;font-size:13.5px;font-weight:600;cursor:pointer;transition:.15s}
+nav button:hover{border-color:var(--teal)} nav button.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+.panel{display:none;background:#fff;border:1px solid var(--bord);border-radius:14px;padding:20px;box-shadow:0 3px 14px rgba(7,63,58,.06)}
+.panel.active{display:block;animation:fade .2s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.panel h2{margin:0 0 2px;font-size:20px;color:var(--deep)}
+.panel .desc{color:var(--grey);font-size:13.5px;margin:0 0 16px}
+label{display:block;font-size:13px;font-weight:600;color:var(--deep);margin:0 0 5px}
+input[type=number],select{width:100%;padding:10px 12px;border:1.4px solid var(--bord);border-radius:9px;font-size:15px;background:#fff;color:var(--ink)}
+input:focus,select:focus{outline:none;border-color:var(--teal)}
+.row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.col{flex:1;min-width:150px}
+.btn{background:var(--teal);color:#fff;border:none;padding:11px 22px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:.15s}
+.btn:hover{background:#0b5d56}.btn.rose{background:var(--rose)}.btn.rose:hover{background:#a8456a}
+.btn.sm{padding:9px 16px;font-size:14px}
+.btn.ghost{background:#fff;color:var(--bad);border:1.5px solid var(--bad);padding:7px 12px;font-size:13px}
+.scoregrid{border:1px solid var(--bord);border-radius:10px;overflow:hidden;margin-bottom:14px}
+.scoregrid .hd{display:flex;background:var(--band);font-size:12px;font-weight:700;color:var(--deep);padding:8px 12px}
+.scoregrid .hd span:first-child{flex:1}
+.scoregrid .item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-top:1px solid var(--bord)}
+.scoregrid .item:nth-child(even){background:var(--zeb)}
+.scoregrid .item label{flex:1;margin:0;font-weight:600;font-size:13.5px}
+.scoregrid .item select{width:auto;min-width:140px;padding:7px 9px;font-size:13.5px}
+.result{margin-top:6px;border-radius:12px;padding:16px 18px;border-left:6px solid var(--teal);background:var(--band);display:none}
+.result.show{display:block;animation:fade .2s}
+.result .badge{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.4px;color:#fff;background:var(--teal);padding:4px 11px;border-radius:20px;margin-bottom:8px;text-transform:uppercase}
+.result .big{font-size:23px;font-weight:800;color:var(--deep);margin:2px 0 6px}
+.result p{margin:6px 0 0;font-size:14px;line-height:1.55}
+.result ul{margin:8px 0 0;padding-left:20px;font-size:13.5px;line-height:1.5}
+.result.ok{border-color:var(--ok);background:#e9f7f0}.result.ok .badge{background:var(--ok)}.result.ok .big{color:#137a4f}
+.result.warn{border-color:var(--warn);background:#fdf3e3}.result.warn .badge{background:var(--warn)}.result.warn .big{color:#9c6612}
+.result.bad{border-color:var(--bad);background:var(--rosel)}.result.bad .badge{background:var(--bad)}.result.bad .big{color:#9b2f53}
+.note{font-size:12px;color:var(--grey);background:var(--band);border-radius:9px;padding:10px 12px;margin-top:14px;line-height:1.5}
+.subcard{border:1px solid var(--bord);border-radius:11px;padding:16px;margin-bottom:16px}
+.subcard h3{margin:0 0 12px;font-size:15px;color:var(--deep)}
+.disc{background:#fff;border:1px solid var(--bord);border-left:4px solid var(--rose);border-radius:10px;padding:12px 14px;font-size:12.5px;color:#6b2643;margin-top:18px;line-height:1.55}
+footer{text-align:center;color:var(--grey);font-size:12.5px;margin-top:26px;line-height:1.6}
+/* kramer */
+.kramer-wrap{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start}
+.levelbtns{display:flex;flex-direction:column;gap:8px;min-width:150px}
+.levelbtns button{border:1.5px solid var(--bord);background:#fff;border-radius:10px;padding:10px 12px;font-size:13.5px;font-weight:600;text-align:left;cursor:pointer}
+.levelbtns button.active{background:var(--rose);color:#fff;border-color:var(--rose)}
+.babybox{flex:1;min-width:200px;text-align:center}
+/* partograf */
+.ptable{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+.ptable th{background:var(--band);color:var(--deep);font-size:11.5px;padding:7px 6px;border:1px solid var(--bord);text-align:center}
+.ptable td{border:1px solid var(--bord);padding:6px;text-align:center}
+.ptable tr:nth-child(even) td{background:var(--zeb)}
+.djj-ok{color:var(--ok);font-weight:700}.djj-bad{color:var(--bad);font-weight:700}
+.addrow{display:flex;gap:8px;flex-wrap:wrap;align-items:end;background:var(--band);padding:12px;border-radius:10px;margin-bottom:8px}
+.addrow .col{min-width:92px}
+.addrow input{padding:8px 9px;font-size:14px}
+canvas{width:100%;max-width:100%;border:1px solid var(--bord);border-radius:10px;background:#fff;margin-top:6px}
+.legend{font-size:12px;color:var(--grey);margin:8px 0 0;display:flex;gap:16px;flex-wrap:wrap}
+.legend i{display:inline-block;width:22px;height:0;border-top:3px solid;vertical-align:middle;margin-right:5px}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="brand">bidanpintar<b>.id</b></div>
+  <h1>Kalkulator Persalinan &amp; Neonatus</h1>
+  <div class="sub">Skor Bishop · Tetes Infus/Oksitosin · Derajat Kramer · Partograf &amp; Pemantauan DJJ. Pelengkap kalkulator dasar (HPL, APGAR, KSPR, LATCH).</div>
+</div></header>
+
+<div class="wrap">
+  <nav id="nav">
+    <button data-t="bishop" class="active">Skor Bishop</button>
+    <button data-t="infus">Tetes Infus / Oksitosin</button>
+    <button data-t="kramer">Derajat Kramer</button>
+    <button data-t="partograf">Partograf &amp; DJJ</button>
+  </nav>
+
+  <!-- BISHOP -->
+  <section class="panel active" id="bishop">
+    <h2>Skor Bishop — Kesiapan Induksi</h2>
+    <p class="desc">Menilai kematangan serviks untuk memprediksi keberhasilan induksi persalinan. Pilih kondisi tiap parameter.</p>
+    <div class="scoregrid" id="bishopGrid"></div>
+    <button class="btn" onclick="calcBishop()">Hitung Skor Bishop</button>
+    <div class="result" id="r_bishop"></div>
+    <div class="note">Skor maksimal 13. ≤4 serviks belum matang · 5–8 area abu-abu · ≥9 serviks matang.</div>
+  </section>
+
+  <!-- INFUS -->
+  <section class="panel" id="infus">
+    <h2>Kalkulator Tetes Infus &amp; Titrasi Oksitosin</h2>
+    <p class="desc">Hitung tetes per menit (TPM) untuk rehidrasi atau titrasi oksitosin.</p>
+
+    <div class="subcard">
+      <h3>A. Tetesan Cairan / Rehidrasi</h3>
+      <div class="row">
+        <div class="col"><label>Volume cairan (ml)</label><input type="number" id="ivVol" placeholder="mis. 500"></div>
+        <div class="col"><label>Waktu (jam)</label><input type="number" id="ivJam" step="0.1" placeholder="mis. 8"></div>
+        <div class="col"><label>Faktor tetes</label>
+          <select id="ivFak"><option value="20">Makro 20 gtt/ml</option><option value="15">Makro 15 gtt/ml</option><option value="60">Mikro 60 gtt/ml</option></select></div>
+      </div>
+      <button class="btn sm" onclick="calcDripBasic()">Hitung TPM</button>
+      <div class="result" id="r_drip"></div>
+    </div>
+
+    <div class="subcard">
+      <h3>B. Titrasi Oksitosin (mIU/menit → TPM)</h3>
+      <div class="row">
+        <div class="col"><label>Oksitosin (Unit)</label><input type="number" id="oxU" step="0.5" placeholder="mis. 5"></div>
+        <div class="col"><label>Volume kolf (ml)</label><input type="number" id="oxVol" placeholder="mis. 500"></div>
+      </div>
+      <div class="row">
+        <div class="col"><label>Dosis diminta (mIU/menit)</label><input type="number" id="oxDose" step="0.5" placeholder="mis. 2"></div>
+        <div class="col"><label>Faktor tetes</label>
+          <select id="oxFak"><option value="20">Makro 20 gtt/ml</option><option value="15">Makro 15 gtt/ml</option><option value="60">Mikro 60 gtt/ml</option></select></div>
+      </div>
+      <button class="btn sm rose" onclick="calcOxy()">Hitung TPM Oksitosin</button>
+      <div class="result" id="r_oxy"></div>
+    </div>
+    <div class="note">TPM = (Volume × Faktor) ÷ (Jam × 60). &nbsp; Oksitosin: TPM = (Dosis × Volume × Faktor) ÷ (Unit × 1000). Selalu gunakan infusion pump bila tersedia &amp; pantau his + DJJ tiap kenaikan dosis.</div>
+  </section>
+
+  <!-- KRAMER -->
+  <section class="panel" id="kramer">
+    <h2>Derajat Kramer — Ikterus Neonatorum</h2>
+    <p class="desc">Pilih sebaran warna kuning pada tubuh bayi. Ilustrasi &amp; estimasi bilirubin diperbarui otomatis.</p>
+    <div class="kramer-wrap">
+      <div class="levelbtns" id="kramerBtns">
+        <button data-l="1">Kramer 1 — Kepala &amp; leher</button>
+        <button data-l="2">Kramer 2 — Dada s/d pusat</button>
+        <button data-l="3">Kramer 3 — Pusat bawah s/d lutut</button>
+        <button data-l="4">Kramer 4 — Lengan &amp; tungkai bawah</button>
+        <button data-l="5">Kramer 5 — Telapak tangan &amp; kaki</button>
+      </div>
+      <div class="babybox">
+        <svg id="baby" width="190" height="320" viewBox="0 0 190 320" xmlns="http://www.w3.org/2000/svg" style="max-width:190px">
+          <!-- head+neck z1 -->
+          <circle class="z1" fill="#f3d9c4" stroke="#caa98f" stroke-width="1.5" cx="95" cy="44" r="34"/>
+          <rect class="z1" fill="#f3d9c4" stroke="#caa98f" stroke-width="1.5" x="83" y="74" width="24" height="16" rx="6"/>
+          <!-- upper torso z2 -->
+          <path class="z2" fill="#f3d9c4" stroke="#caa98f" stroke-width="1.5" d="M62 90 Q95 80 128 90 L130 150 L60 150 Z"/>
+          <!-- shoulders/upper arms z2 -->
+          <rect class="z2" fill="#f3d9c4" stroke="#caa98f" stroke-width="1.5" x="40" y="96" width="22" height="58" rx="11"/>
+          <rect class="z2" fill="#f3d9c4" stroke="#caa98f" stroke-width="1.5" x="128" y="96" width="22" height="58" rx="11"/>
+          <!-- lower torso + thighs z3 -->
+          <path class="z3" fill="#f3d9c4" stroke="#caa98f" stroke-width="1.5" d="M60 150 L130 150 L126 206 L64 206 Z"/>
+          <rect class="z3" fill="#f3d9c4" stroke="#caa98f" stroke-width="1.5" x="66" y="200" width="24" height="56" rx="11"/>
+          <rect class="z3" fill="#f3d9c4" stroke="#caa98f" stroke-width="1.5" x="100" y="200" width="24" height="56" rx="11"/>
+          <!-- forearms z4 -->
+          <rect class="z4" fill="#f3d9c4" stroke="#caa98f" stroke-width="1.5" x="38" y="150" width="22" height="58" rx="11"/>
+          <rect class="z4" fill="#f3d9c4" stroke="#caa98f" stroke-width="1.5" x="130" y="150" width="22" height="58" rx="11"/>
+          <!-- lower legs z4 -->
+          <rect class="z4" fill="#f3d9c4" stroke="#caa98f" stroke-width="1.5" x="66" y="252" width="24" height="50" rx="11"/>
+          <rect class="z4" fill="#f3d9c4" stroke="#caa98f" stroke-width="1.5" x="100" y="252" width="24" height="50" rx="11"/>
+          <!-- hands z5 -->
+          <circle class="z5" fill="#f3d9c4" stroke="#caa98f" stroke-width="1.5" cx="49" cy="212" r="13"/>
+          <circle class="z5" fill="#f3d9c4" stroke="#caa98f" stroke-width="1.5" cx="141" cy="212" r="13"/>
+          <!-- feet z5 -->
+          <ellipse class="z5" fill="#f3d9c4" stroke="#caa98f" stroke-width="1.5" cx="78" cy="306" rx="16" ry="11"/>
+          <ellipse class="z5" fill="#f3d9c4" stroke="#caa98f" stroke-width="1.5" cx="112" cy="306" rx="16" ry="11"/>
+        </svg>
+      </div>
+    </div>
+    <div class="result" id="r_kramer" style="margin-top:14px"></div>
+    <div class="note">Estimasi bilirubin bersifat kasar. <b>Bayi kuning dalam 24 jam pertama selalu patologis</b> — apa pun derajatnya, segera evaluasi.</div>
+  </section>
+
+  <!-- PARTOGRAF -->
+  <section class="panel" id="partograf">
+    <h2>Partograf Digital &amp; Pemantauan DJJ</h2>
+    <p class="desc">Plot pembukaan serviks fase aktif (≥4 cm). Sistem menggambar garis waspada &amp; garis tindakan otomatis, lalu menilai kemajuan persalinan.</p>
+    <div class="addrow">
+      <div class="col"><label>Jam ke-</label><input type="number" id="pT" step="0.5" placeholder="0"></div>
+      <div class="col"><label>Pembukaan (cm)</label><input type="number" id="pD" step="1" min="4" max="10" placeholder="4–10"></div>
+      <div class="col"><label>Penurunan (5–0)</label><input type="number" id="pS" step="1" min="0" max="5" placeholder="opsional"></div>
+      <div class="col"><label>DJJ (x/mnt)</label><input type="number" id="pJ" placeholder="120–160"></div>
+      <div class="col"><label>His /10'</label><input type="number" id="pH" placeholder="opsional"></div>
+      <button class="btn sm" onclick="addEntry()">+ Tambah</button>
+    </div>
+    <button class="btn ghost" onclick="loadDemo()">Isi contoh</button>
+    <button class="btn ghost" onclick="clearEntries()">Kosongkan</button>
+    <div id="ptableWrap"></div>
+    <canvas id="pchart" width="860" height="380"></canvas>
+    <div class="legend">
+      <span><i style="border-color:#0d6e66"></i>Pembukaan (X)</span>
+      <span><i style="border-color:#2563eb"></i>Garis Waspada</span>
+      <span><i style="border-color:#c2557a"></i>Garis Tindakan</span>
+      <span><i style="border-color:#d98e26;border-top-style:dashed"></i>Penurunan (O)</span>
+    </div>
+    <div class="result" id="r_part" style="margin-top:14px"></div>
+    <div class="result" id="r_djj" style="margin-top:10px"></div>
+    <div class="note">Garis waspada: 1 cm/jam dari titik pembukaan pertama. Garis tindakan: sejajar, 4 jam di kanannya. DJJ normal 120–160 x/menit.</div>
+  </section>
+
+  <div class="disc"><b>Penting:</b> Alat bantu belajar &amp; dokumentasi mahasiswa. Hasil bersifat estimasi, tidak menggantikan penilaian klinis, SOP lahan praktik, atau keputusan pembimbing/dokter. Untuk titrasi oksitosin &amp; keputusan rujukan, selalu ikuti protokol resmi &amp; supervisi.</div>
+  <footer>© 2026 <b>bidanpintar.id</b> — Pelengkap Clinical Toolkit for Midwifery Students<br>ANC · Persalinan · Nifas · Neonatus</footer>
+</div>
+
+<script>
+const nav=document.getElementById('nav');
+nav.addEventListener('click',e=>{
+  if(e.target.tagName!=='BUTTON')return;
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  e.target.classList.add('active');
+  document.getElementById(e.target.dataset.t).classList.add('active');
+  if(e.target.dataset.t==='partograf') setTimeout(drawChart,50);
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+function show(id,cls,html){const r=document.getElementById(id);r.className='result show '+cls;r.innerHTML=html;}
+
+// ===== BISHOP =====
+const bishop=[
+ ['Dilatasi (pembukaan)',[['Tertutup',0],['1–2 cm',1],['3–4 cm',2],['≥ 5 cm',3]]],
+ ['Pendataran (effacement)',[['0–30%',0],['40–50%',1],['60–70%',2],['> 80%',3]]],
+ ['Konsistensi serviks',[['Keras',0],['Sedang',1],['Lunak',2]]],
+ ['Posisi serviks',[['Posterior',0],['Midposisi',1],['Anterior',2]]],
+ ['Station (penurunan kepala)',[['-3',0],['-2',1],['-1 / 0',2],['+1 / +2',3]]],
+];
+(function(){
+  let h='<div class="hd"><span>Parameter</span><span>Kondisi</span></div>';
+  bishop.forEach((b,i)=>{h+='<div class="item"><label>'+b[0]+'</label><select id="bi'+i+'">'+
+    b[1].map(o=>'<option value="'+o[1]+'">'+o[0]+' ('+o[1]+')</option>').join('')+'</select></div>';});
+  document.getElementById('bishopGrid').innerHTML=h;
+})();
+function calcBishop(){
+  let s=0;for(let i=0;i<5;i++)s+=+document.getElementById('bi'+i).value;
+  let cls,badge,txt;
+  if(s<=4){cls='bad';badge='Belum Matang';txt='Skor ≤ 4: serviks <b>belum matang</b>, induksi kemungkinan <b>gagal</b>. Perlu pematangan serviks lebih dulu (mis. misoprostol atau kateter Foley) sebelum oksitosin.';}
+  else if(s<=8){cls='warn';badge='Area Abu-abu';txt='Skor 5–8: kondisi <b>intermediate</b>. Pertimbangkan pematangan serviks &amp; evaluasi ulang; keberhasilan induksi bervariasi.';}
+  else{cls='ok';badge='Serviks Matang';txt='Skor ≥ 9: serviks <b>matang</b>, induksi (mis. oksitosin) <b>kemungkinan besar berhasil</b>.';}
+  show('r_bishop',cls,'<div class="badge">'+badge+'</div><div class="big">Skor Bishop: '+s+' / 13</div><p>'+txt+'</p>');
+}
+
+// ===== DRIP =====
+function calcDripBasic(){
+  const v=+document.getElementById('ivVol').value,j=+document.getElementById('ivJam').value,f=+document.getElementById('ivFak').value;
+  if(!v||!j){show('r_drip','warn','<div class="badge">Lengkapi data</div><p>Isi volume &amp; waktu.</p>');return;}
+  const tpm=v*f/(j*60);
+  show('r_drip','ok','<div class="badge">Atur Tetesan</div><div class="big">'+tpm.toFixed(0)+' tetes/menit</div>'+
+    '<p>('+tpm.toFixed(1)+' gtt/mnt) untuk '+v+' ml dalam '+j+' jam, faktor '+f+' gtt/ml.</p>'+
+    '<p>Setara ± <b>'+(v/j).toFixed(0)+' ml/jam</b>.</p>');
+}
+function calcOxy(){
+  const u=+document.getElementById('oxU').value,v=+document.getElementById('oxVol').value,
+        d=+document.getElementById('oxDose').value,f=+document.getElementById('oxFak').value;
+  if(!u||!v||!d){show('r_oxy','warn','<div class="badge">Lengkapi data</div><p>Isi unit oksitosin, volume kolf &amp; dosis.</p>');return;}
+  const conc=u*1000/v;            // mIU/ml
+  const mlmin=d/conc;             // ml/menit
+  const tpm=mlmin*f;             // gtt/menit
+  let cls='ok',extra='';
+  if(d>20){cls='bad';extra='<p><b>Perhatian:</b> dosis &gt; 20 mIU/menit tergolong sangat tinggi — waspadai hiperstimulasi uterus.</p>';}
+  else if(d>=12){cls='warn';extra='<p>Dosis cukup tinggi — pantau ketat his &amp; DJJ.</p>';}
+  show('r_oxy',cls,'<div class="badge">Atur Tetesan</div><div class="big">'+tpm.toFixed(0)+' tetes/menit</div>'+
+    '<p>('+tpm.toFixed(1)+' gtt/mnt) untuk dosis '+d+' mIU/menit.</p>'+
+    '<p>Konsentrasi larutan: <b>'+conc.toFixed(1)+' mIU/ml</b> · laju ± <b>'+(mlmin*60).toFixed(1)+' ml/jam</b>.</p>'+extra+
+    '<p style="margin-top:8px">Mulai dari dosis rendah &amp; naikkan bertahap (titrasi) sesuai protokol hingga his adekuat.</p>');
+}
+
+// ===== KRAMER =====
+const SKIN='#f3d9c4', JAUN='#f4cf2e', STROKE='#caa98f';
+const biliTxt=['','~5 mg/dL','~9 mg/dL','~11 mg/dL','~12 mg/dL','~15–16 mg/dL (atau lebih)'];
+const areaTxt=['','Kepala &amp; leher','Dada sampai pusat','Pusat bawah sampai lutut','Lengan &amp; tungkai bawah','Telapak tangan &amp; kaki'];
+document.querySelectorAll('#baby [class^=z]').forEach(el=>{el.setAttribute('stroke',STROKE);el.setAttribute('stroke-width','1.5');el.setAttribute('fill',SKIN);});
+function setKramer(L){
+  document.querySelectorAll('#kramerBtns button').forEach(b=>b.classList.toggle('active',+b.dataset.l===L));
+  for(let z=1;z<=5;z++){document.querySelectorAll('#baby .z'+z).forEach(el=>el.setAttribute('fill', z<=L?JAUN:SKIN));}
+  let cls = L>=3?'bad':'warn';
+  let alert = L>=3
+    ? '<p><b>⚠️ Rujuk segera</b> untuk pemeriksaan bilirubin serum / fototerapi.</p>'
+    : '<p>Observasi ketat, nilai ulang, pastikan asupan ASI cukup. Bila kuning &lt;24 jam atau memburuk → rujuk.</p>';
+  show('r_kramer',cls,'<div class="badge">Kramer '+L+'</div><div class="big">Estimasi bilirubin '+biliTxt[L]+'</div>'+
+    '<p>Sebaran kuning: <b>'+areaTxt[L]+'</b>.</p>'+alert);
+}
+document.getElementById('kramerBtns').addEventListener('click',e=>{if(e.target.dataset.l)setKramer(+e.target.dataset.l);});
+
+// ===== PARTOGRAF =====
+let entries=[];
+function renderTable(){
+  const w=document.getElementById('ptableWrap');
+  if(!entries.length){w.innerHTML='<p style="color:#6b7280;font-size:13px;margin:8px 0">Belum ada data. Tambahkan entri atau klik "Isi contoh".</p>';return;}
+  let h='<table class="ptable"><tr><th>Jam ke-</th><th>Pembukaan</th><th>Penurunan</th><th>DJJ</th><th>His/10\'</th><th></th></tr>';
+  entries.forEach((e,i)=>{
+    const dj = e.djj?('<span class="'+((e.djj>=120&&e.djj<=160)?'djj-ok':'djj-bad')+'">'+e.djj+'</span>'):'–';
+    h+='<tr><td>'+e.t+'</td><td>'+e.d+' cm</td><td>'+(e.s!=null?e.s:'–')+'</td><td>'+dj+'</td><td>'+(e.h||'–')+'</td>'+
+       '<td><button class="btn ghost" style="padding:3px 9px" onclick="delEntry('+i+')">hapus</button></td></tr>';
+  });
+  h+='</table>';w.innerHTML=h;
+}
+function addEntry(){
+  const t=parseFloat(document.getElementById('pT').value);
+  const d=parseFloat(document.getElementById('pD').value);
+  if(isNaN(t)||isNaN(d)){show('r_part','warn','<div class="badge">Lengkapi data</div><p>Isi minimal Jam ke- dan Pembukaan (cm).</p>');return;}
+  if(d<4||d>10){show('r_part','warn','<div class="badge">Periksa nilai</div><p>Pembukaan fase aktif 4–10 cm.</p>');return;}
+  const s=document.getElementById('pS').value, j=document.getElementById('pJ').value, hh=document.getElementById('pH').value;
+  entries.push({t,d,s:s===''?null:+s,djj:j===''?null:+j,h:hh===''?null:+hh});
+  entries.sort((a,b)=>a.t-b.t);
+  ['pT','pD','pS','pJ','pH'].forEach(id=>document.getElementById(id).value='');
+  refresh();
+}
+function delEntry(i){entries.splice(i,1);refresh();}
+function clearEntries(){entries=[];refresh();document.getElementById('r_part').className='result';document.getElementById('r_djj').className='result';}
+function loadDemo(){
+  entries=[{t:0,d:4,s:5,djj:140,h:3},{t:2,d:5,s:4,djj:146,h:4},{t:4,d:7,s:3,djj:150,h:4},{t:6,d:8,s:2,djj:154,h:4}];
+  refresh();
+}
+function refresh(){renderTable();drawChart();evalPart();}
+
+function drawChart(){
+  const cv=document.getElementById('pchart');if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const cw=cv.clientWidth||860; const W=cv.width=cw*2, H=cv.height=760;
+  const dpr=2; // we drew at 2x width via clientWidth*2; height fixed
+  const mL=70*dpr/2*2, mR=30*dpr, mT=30*dpr, mB=70*dpr;
+  const left=80, right=W-50, top=40, bot=H-80;
+  ctx.clearRect(0,0,W,H);
+  ctx.font='22px Segoe UI, Arial'; ctx.textBaseline='middle';
+  const maxT=Math.max(12, (entries.length?entries[entries.length-1].t:0)+4);
+  const X=t=>left+(right-left)*(t/maxT);
+  const Y=d=>bot-(bot-top)*((d-4)/6); // 4..10
+  // grid Y (dilatation 4..10)
+  ctx.strokeStyle='#e3ebe9';ctx.lineWidth=2;ctx.fillStyle='#6b7280';ctx.textAlign='right';
+  for(let d=4;d<=10;d++){ctx.beginPath();ctx.moveTo(left,Y(d));ctx.lineTo(right,Y(d));ctx.stroke();ctx.fillText(d,left-12,Y(d));}
+  // grid X (hours)
+  ctx.textAlign='center';
+  for(let t=0;t<=maxT;t+=1){ctx.strokeStyle=(t%2?'#f0f4f3':'#e3ebe9');ctx.beginPath();ctx.moveTo(X(t),top);ctx.lineTo(X(t),bot);ctx.stroke();if(t%2===0)ctx.fillText(t,X(t),bot+26);}
+  ctx.fillStyle='#094a45';ctx.font='bold 22px Segoe UI, Arial';
+  ctx.fillText('Waktu (jam)',(left+right)/2,bot+54);
+  ctx.save();ctx.translate(26,(top+bot)/2);ctx.rotate(-Math.PI/2);ctx.fillText('Pembukaan serviks (cm)',0,0);ctx.restore();
+
+  // alert & action lines
+  if(entries.length){
+    const t0=entries[0].t, d0=entries[0].d;
+    const tA=t0+(10-d0);           // alert reaches 10
+    ctx.lineWidth=4;
+    ctx.strokeStyle='#2563eb';ctx.beginPath();ctx.moveTo(X(t0),Y(d0));ctx.lineTo(X(tA),Y(10));ctx.stroke();
+    ctx.strokeStyle='#c2557a';ctx.beginPath();ctx.moveTo(X(t0+4),Y(d0));ctx.lineTo(X(tA+4),Y(10));ctx.stroke();
+  }
+  // penurunan (O) dashed orange on same axis mapping 5..0 -> reuse 4..10? plot at its own scale: 0->bot,5->top
+  if(entries.some(e=>e.s!=null)){
+    const Ys=s=>bot-(bot-top)*((s)/5);
+    ctx.strokeStyle='#d98e26';ctx.setLineDash([8,6]);ctx.lineWidth=3;ctx.beginPath();let started=false;
+    entries.forEach(e=>{if(e.s==null)return;const x=X(e.t),y=Ys(e.s);if(!started){ctx.moveTo(x,y);started=true;}else ctx.lineTo(x,y);});
+    ctx.stroke();ctx.setLineDash([]);
+    entries.forEach(e=>{if(e.s==null)return;ctx.strokeStyle='#d98e26';ctx.lineWidth=3;ctx.beginPath();ctx.arc(X(e.t),Ys(e.s),9,0,7);ctx.stroke();});
+  }
+  // dilatation X markers
+  ctx.strokeStyle='#0d6e66';ctx.lineWidth=4;ctx.beginPath();
+  entries.forEach((e,i)=>{const x=X(e.t),y=Y(e.d);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();
+  ctx.strokeStyle='#0d6e66';ctx.lineWidth=4;
+  entries.forEach(e=>{const x=X(e.t),y=Y(e.d),r=9;ctx.beginPath();ctx.moveTo(x-r,y-r);ctx.lineTo(x+r,y+r);ctx.moveTo(x+r,y-r);ctx.lineTo(x-r,y+r);ctx.stroke();});
+}
+
+function evalPart(){
+  if(!entries.length){document.getElementById('r_part').className='result';document.getElementById('r_djj').className='result';return;}
+  const t0=entries[0].t,d0=entries[0].d,last=entries[entries.length-1];
+  const tAlertForD=t0+(last.d-d0);      // when alert line reaches last.d
+  const delta=last.t-tAlertForD;        // hours to the right of alert line
+  let cls,badge,txt;
+  if(delta<=0){cls='ok';badge='Kondisi Aman';txt='Grafik pembukaan berada di kiri/pada garis waspada. <b>Kemajuan persalinan baik.</b> Lanjutkan pemantauan rutin.';}
+  else if(delta<4){cls='warn';badge='Waspada';txt='Grafik melewati <b>garis waspada</b> (± '+delta.toFixed(1)+' jam di kanannya). Kemajuan melambat — evaluasi kontraksi, ketuban, hidrasi &amp; posisi ibu; siapkan rujukan bila tak membaik.';}
+  else{cls='bad';badge='Bahaya — Rujuk';txt='⚠️ Grafik mencapai/melewati <b>garis tindakan</b>. <b>Segera lakukan tindakan atau rujuk ke rumah sakit.</b>';}
+  show('r_part',cls,'<div class="badge">'+badge+'</div><div class="big">Pembukaan terakhir: '+last.d+' cm (jam ke-'+last.t+')</div><p>'+txt+'</p>');
+  // DJJ eval
+  const abn=entries.filter(e=>e.djj!=null&&(e.djj<120||e.djj>160));
+  if(entries.some(e=>e.djj!=null)){
+    if(abn.length){const e=abn[abn.length-1];const k=e.djj<120?'bradikardia (&lt;120)':'takikardia (&gt;160)';
+      show('r_djj','bad','<div class="badge">DJJ Abnormal</div><div class="big">DJJ '+e.djj+' x/menit</div><p>Terdeteksi <b>'+k+'</b>. Ubah posisi ibu (miring kiri), beri O₂, hidrasi, hentikan oksitosin bila terpasang, dan evaluasi/rujuk bila menetap.</p>');}
+    else show('r_djj','ok','<div class="badge">DJJ Normal</div><div class="big">DJJ dalam batas 120–160</div><p>Denyut jantung janin baik. Lanjutkan pemantauan tiap 30 menit (fase aktif).</p>');
+  } else document.getElementById('r_djj').className='result';
+}
+window.addEventListener('resize',()=>{if(document.getElementById('partograf').classList.contains('active'))drawChart();});
+renderTable();
+</script>
+</body>
+</html>
